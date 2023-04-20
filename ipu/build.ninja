@@ -1,0 +1,15 @@
+clflags = -O2 -std=c++17 -Wall -Werror -fcolor-diagnostics
+cppflags = $clflags -I${POPLAR_SDK_ENABLED}/include
+linkflags = $clflags -Wl,-z,relro,-z,defs
+
+rule cc
+    command = clang++ $cppflags -c $in -o $out
+
+rule linkexe
+    command = clang++ $linkflags $in -o $out $libs
+
+build matmul_bench.o: cc matmul_bench.cpp
+build matmul_bench: linkexe matmul_bench.o
+    libs = -lpoplar -lpopops -lpoplin -lpopsparse -lpoputil
+
+default matmul_bench
