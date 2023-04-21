@@ -1,0 +1,12 @@
+bin/
+dist/
+include/
+lib/
+share/
+venv/
+**/*.egg-info
+**/__pycache__
+**/.cache
+*.npy
+*.json
+*.pop
