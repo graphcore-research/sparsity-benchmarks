@@ -2,3 +2,4 @@
 ipu/matmul_bench
 ipu/profile*
 ipu/.ninja_log
+ipu/.venv

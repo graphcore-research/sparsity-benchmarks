@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import pva
 from collections import defaultdict
 from ._reptil_namespace import ReptilNamespace

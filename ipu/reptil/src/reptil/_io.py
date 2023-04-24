@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 from typing import TYPE_CHECKING, Union
 import pva
 from ._reptil_namespace import ReptilNamespace

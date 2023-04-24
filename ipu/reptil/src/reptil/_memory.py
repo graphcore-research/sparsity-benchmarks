@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import numpy as np
 from ._reptil_namespace import ReptilNamespace
 from ._statistics import summary_stats, tile_balance

@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import argparse
 import errno
 import json
@@ -26,14 +28,16 @@ def make_arg_parser(parser=None):
     )
 
     parser.add_argument(
-        "--m",
+        "-m",
+        "--output",
         type=int,
         required=True,
         help="The number of rows for the left hand side matrix"
     )
 
     parser.add_argument(
-        "--k",
+        "-k",
+        "--input",
         type=int,
         required=True,
         help="The number of rows for the right hand side matrix and \
@@ -41,7 +45,8 @@ def make_arg_parser(parser=None):
     )
 
     parser.add_argument(
-        "--n",
+        "-n",
+        "--batch",
         type=int,
         required=True,
         help="The number of columns for the right hand side matrix"
@@ -177,7 +182,7 @@ if __name__ == '__main__':
 
     parser = make_arg_parser()
     args = parser.parse_args()
-    (m, n, k) = (args.m, args.n, args.k)
+    (m, n, k) = (args.output, args.batch, args.input)
 
     cmd = f"./matmul_bench --implementation {args.implementation}"
     cmd += f" -m {m} -k {k} -n {n} --data-type {args.type}"

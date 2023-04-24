@@ -1,11 +1,11 @@
 ### A simple application for running matmuls and extracting execution metrics from profile files
 
 #### Requirements:
-  * Poplar SDK downloaded and activated
+  * Poplar SDK [downloaded](https://www.graphcore.ai/downloads) and activated
   * clang for compiling
   * ninja for building
   * python >= 3.8 for running
-  * reptil (supplied)
+  * reptil (supplied) - filtering and aggregation wrapper on top of libpva
 
 #### Build instructions:  
   `source install.sh` in the current folder to:  

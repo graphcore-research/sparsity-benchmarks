@@ -1,5 +1,5 @@
 clflags = -O2 -std=c++17 -Wall -Werror -fcolor-diagnostics
-cppflags = $clflags -I${POPLAR_SDK_ENABLED}/include
+cppflags = $clflags -I${POPLAR_SDK_ENABLED}/include -Icxxopts/include
 linkflags = $clflags -Wl,-z,relro,-z,defs
 
 rule cc

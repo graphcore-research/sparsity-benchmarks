@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 from typing import Union, TYPE_CHECKING
 import pva
 

@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 from typing import Tuple
 from ._memory import Memory
 from ._cycles import Cycles

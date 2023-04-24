@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as readme:
