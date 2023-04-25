@@ -6,6 +6,7 @@ _We recommend starting with the PyTorch demo notebook:_
 
 [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/notebooks?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fsparsity_benchmarks%2FSpMM.ipynb)
 
+
 ## Contents
 
  - [GPU benchmarking](#gpu-benchmarking)
@@ -16,6 +17,7 @@ _We recommend starting with the PyTorch demo notebook:_
 
 To produce GPU timing numbers, make the following modifications to third-party benchmarks:
 
+ - Using CUDA 11.3 on a DGX A100.
  - (BSR) Clone [ceruleangu/Block-Sparse-Benchmark](https://github.com/ceruleangu/Block-Sparse-Benchmark).
    - Replace `num_r_block -> (num_r_block - 1)`, `num_c_block -> (num_c_block - 1)` in `generate_candidate_blocks()`.
  - (Dense) Clone [hbrunie/cublas_benchmarks](https://github.com/hbrunie/cublas_benchmarks).
@@ -23,6 +25,7 @@ To produce GPU timing numbers, make the following modifications to third-party b
  - Add `cudaDeviceSynchronize()` at the beginning of `GpuTimer::Start()`.
  - Start `GpuTimer` after the first 5 runs.
  - Stop after 20 timed runs, recording the total time using `cudaEventElapsedTime()`.
+
 
 ## References & license
 
