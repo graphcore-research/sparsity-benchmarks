@@ -17,7 +17,7 @@ _We recommend starting with the PyTorch demo notebook:_
 
 To produce GPU timing numbers, make the following modifications to third-party benchmarks:
 
- - Using CUDA 11.3 on a DGX A100.
+ - Using CUDA 11.6.2 on a DGX A100.
  - (BSR) Clone [ceruleangu/Block-Sparse-Benchmark](https://github.com/ceruleangu/Block-Sparse-Benchmark).
    - Replace `num_r_block -> (num_r_block - 1)`, `num_c_block -> (num_c_block - 1)` in `generate_candidate_blocks()`.
  - (Dense) Clone [hbrunie/cublas_benchmarks](https://github.com/hbrunie/cublas_benchmarks).
