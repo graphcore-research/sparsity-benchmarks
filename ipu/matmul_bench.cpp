@@ -11,6 +11,7 @@
 #include <poplar/DeviceManager.hpp>
 #include <poplar/Engine.hpp>
 #include <poplar/Graph.hpp>
+#include <poplar/IPUModel.hpp>
 #include <poplin/MatMul.hpp>
 #include <poplin/codelets.hpp>
 #include <popops/Cast.hpp>
@@ -40,6 +41,25 @@ poplar::Device attach(size_t count) {
         }
     }
     throw std::runtime_error("Couldn't attach to device");
+}
+
+poplar::Device makeDevice(std::string deviceType) {
+    if (deviceType.rfind("IpuModel", 0) == 0) {
+        auto type2model = [&deviceType] {
+            std::string ret = "ipu2";
+            if (deviceType == "IpuModel21") {
+                ret = "ipu21";
+            } else if (deviceType == "IpuModel30") {
+                ret = "ipu30";
+            }
+            return ret;
+        };
+
+        auto ipuModel = poplar::IPUModel{type2model().c_str()};
+        return ipuModel.createDevice();
+    }
+
+    return attach(1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -540,6 +560,8 @@ int main(int argc, char** argv) {
         ("help", "Produce help message")
         ("compile-only", "Stop after compilation; don't run the program",
 	 cxxopts::value<bool>()->default_value("false"))
+	("device-type",  "Hw | IpuModel2 | IpuModel21 | IpuModel30",
+         cxxopts::value<std::string>()->default_value("Hw"))
         ("profile", "Enable profiling and print profiling report",
 	 cxxopts::value<bool>()->default_value("false"))
         ("profile-dir",
@@ -588,18 +610,23 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // bool compileOnly = result["compile-only"].as<bool>();;
+    // bool compileOnly = result["compile-only"].as<bool>();
+    std::string deviceType{};
+    if (result.count("device-type")) {
+        deviceType = result["device-type"].as<std::string>();
+    }
     bool ignoreData = result["ignore-data"].as<bool>();
     bool profile = result["profile"].as<bool>();
     std::string profileDir = result["profile-dir"].as<std::string>();;
     std::string implArg = result["implementation"].as<std::string>();
-    // bool transposeLHS = result["transpose-lhs"].as<bool>();
-    // bool transposeRHS = result["transpose-rhs"].as<bool>();
+/*
+    bool transposeLHS = result["transpose-lhs"].as<bool>();
+    bool transposeRHS = result["transpose-rhs"].as<bool>();
     std::string matmulOptions{};
     if (result.count("matmul-options")) {
         matmulOptions = result["matmul-options"].as<std::string>();
     }
-
+*/
     params.groups = result["groups"].as<unsigned>();
     if (result.count("n")) {
         params.batchSize = result["n"].as<unsigned>();
@@ -662,7 +689,7 @@ int main(int argc, char** argv) {
     } else if (implementation == ImplementationType::DynamicBlockSparse) {
         impl.reset(new DynamicBlockSparseImpl(problem));
     }
-    const auto device = attach(1);
+    const auto device = makeDevice(deviceType);
     poplar::Graph graph(device.getTarget());
     popops::addCodelets(graph);
     poplin::addCodelets(graph);

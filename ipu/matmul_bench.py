@@ -70,7 +70,7 @@ def make_arg_parser(parser=None):
         "--device-type",
         type=str,
         default="Hw",
-        choices=["Cpu", "Sim1", "Sim2", "Hw", "IpuModel1", "IpuModel2"],
+        choices=["Hw", "IpuModel", "IpuModel2", "IpuModel21"],
         help="Which device type should be used."
     )
 
@@ -193,6 +193,7 @@ if __name__ == '__main__':
     if args.partials == "half" and args.type == "half":
         cmd += " --partials-type half"
     cmd += f" --profile-dir {args.profile_dir}"
+    cmd += f" --device-type {args.device_type}"
 
     print(cmd)
     args_list = shlex.split(cmd)
