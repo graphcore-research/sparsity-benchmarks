@@ -11,6 +11,8 @@
 #include <poplar/DeviceManager.hpp>
 #include <poplar/Engine.hpp>
 #include <poplar/Graph.hpp>
+#include <poplar/IPUModel.hpp>
+#include <poplar/exceptions.hpp>
 #include <poplin/MatMul.hpp>
 #include <poplin/codelets.hpp>
 #include <popops/Cast.hpp>
@@ -40,6 +42,30 @@ poplar::Device attach(size_t count) {
         }
     }
     throw std::runtime_error("Couldn't attach to device");
+}
+
+poplar::Device makeDevice(std::string deviceType, std::string modelFile) {
+    try {
+        if (deviceType.rfind("IpuModel", 0) == 0) {
+            auto type2model = [&] {
+                std::string ret = "ipu2";
+		auto sLen = sizeof("IpuModel") - 1;
+                if (deviceType == "IpuModelConfig") {
+	            ret = "ipu:" + modelFile;
+                } else if (deviceType.size() > sLen) {
+                    ret = "ipu" + deviceType.substr(sLen);
+		}
+                return ret;
+            };
+
+            auto ipuModel = poplar::IPUModel{type2model().c_str()};
+            return ipuModel.createDevice();
+        }
+        return attach(1);
+    } catch(const poplar::poplar_error &e) {
+        std::cerr << "Could not create device with type: '" + deviceType + "' and model file: '" + modelFile + "'\n";
+        throw e;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -532,14 +558,12 @@ int main(int argc, char** argv) {
 
     // Argument parsing
     cxxopts::Options options("matmul_bench", "A simple wrapper for matmul ops");
-
-    // DeviceType deviceType = DeviceType::IpuModel2;
-
-    // clang-format off
     options.add_options()
         ("help", "Produce help message")
         ("compile-only", "Stop after compilation; don't run the program",
 	 cxxopts::value<bool>()->default_value("false"))
+	("device-type",  "Hw | IpuModel2 | IpuModel21 | IpuModelConfig",
+         cxxopts::value<std::string>()->default_value("Hw"))
         ("profile", "Enable profiling and print profiling report",
 	 cxxopts::value<bool>()->default_value("false"))
         ("profile-dir",
@@ -573,6 +597,8 @@ int main(int argc, char** argv) {
          "Options to use for the matrix multiplication, specified as a JSON "
          "string, e.g. {\"key\":\"value\"}",
 	 cxxopts::value<std::string>())
+	("model-file", "Path to JSON file for model configuration",
+	 cxxopts::value<std::string>()->default_value(""))
     ;
     // clang-format on
 
@@ -588,16 +614,23 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // bool compileOnly = result["compile-only"].as<bool>();;
+    // bool compileOnly = result["compile-only"].as<bool>();
+    std::string deviceType = result["device-type"].as<std::string>();
     bool ignoreData = result["ignore-data"].as<bool>();
     bool profile = result["profile"].as<bool>();
     std::string profileDir = result["profile-dir"].as<std::string>();;
     std::string implArg = result["implementation"].as<std::string>();
-    // bool transposeLHS = result["transpose-lhs"].as<bool>();
-    // bool transposeRHS = result["transpose-rhs"].as<bool>();
+/*
+    bool transposeLHS = result["transpose-lhs"].as<bool>();
+    bool transposeRHS = result["transpose-rhs"].as<bool>();
     std::string matmulOptions{};
     if (result.count("matmul-options")) {
         matmulOptions = result["matmul-options"].as<std::string>();
+    }
+*/
+    std::string modelFile = result["model-file"].as<std::string>();
+    if (modelFile.size() > 0) {
+        deviceType = "IpuModelConfig";
     }
 
     params.groups = result["groups"].as<unsigned>();
@@ -662,7 +695,7 @@ int main(int argc, char** argv) {
     } else if (implementation == ImplementationType::DynamicBlockSparse) {
         impl.reset(new DynamicBlockSparseImpl(problem));
     }
-    const auto device = attach(1);
+    const auto device = makeDevice(deviceType, modelFile);
     poplar::Graph graph(device.getTarget());
     popops::addCodelets(graph);
     poplin::addCodelets(graph);
