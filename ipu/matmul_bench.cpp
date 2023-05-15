@@ -46,19 +46,16 @@ poplar::Device attach(size_t count) {
 
 poplar::Device makeDevice(std::string deviceType, std::string modelFile) {
     try {
-        if (deviceType.rfind("IpuModel", 0) == 0) {
-            auto type2model = [&] {
-                std::string ret = "ipu2";
-		auto sLen = sizeof("IpuModel") - 1;
-                if (deviceType == "IpuModelConfig") {
-	            ret = "ipu:" + modelFile;
-                } else if (deviceType.size() > sLen) {
-                    ret = "ipu" + deviceType.substr(sLen);
-		}
-                return ret;
-            };
+        const std::string prefix{"IpuModel"};
+        if (deviceType.substr(0, prefix.size()) == prefix) {
+            std::string modelName = "ipu2";
+            if (deviceType == "IpuModelConfig") {
+                modelName = "ipu:" + modelFile;
+            } else if (deviceType.size() > prefix.size()) {
+                modelName = "ipu" + deviceType.substr(prefix.size());
+            }
 
-            auto ipuModel = poplar::IPUModel{type2model().c_str()};
+            auto ipuModel = poplar::IPUModel{modelName.c_str()};
             return ipuModel.createDevice();
         }
         return attach(1);
