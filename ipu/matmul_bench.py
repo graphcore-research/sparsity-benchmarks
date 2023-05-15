@@ -70,7 +70,7 @@ def make_arg_parser(parser=None):
         "--device-type",
         type=str,
         default="Hw",
-        choices=["Hw", "IpuModel", "IpuModel2", "IpuModel21"],
+        choices=["Hw", "IpuModel", "IpuModel2", "IpuModel21", "IpuModelConfig"],
         help="Which device type should be used."
     )
 
@@ -104,6 +104,12 @@ def make_arg_parser(parser=None):
         type=str,
         default="./profile",
         help="The folder where to store the profile file"
+    )
+
+    parser.add_argument(
+        "--model-file",
+        type=str,
+        help="The path to the JSON model config file"
     )
 
     return parser
@@ -194,6 +200,8 @@ if __name__ == '__main__':
         cmd += " --partials-type half"
     cmd += f" --profile-dir {args.profile_dir}"
     cmd += f" --device-type {args.device_type}"
+    if args.model_file is not None:
+        cmd += f" --model-file {args.model_file}"
 
     print(cmd)
     args_list = shlex.split(cmd)
@@ -203,6 +211,8 @@ if __name__ == '__main__':
 
     # Output a single flag to indicate whether the run was successful.
     print(f"Success: {proc.returncode == 0}")
+    if proc.returncode != 0:
+        exit(1)
 
     # Profile reports are generated and can contain useful information,
     # even for unsuccessful runs (e.g. OOM errors or validation failures),
